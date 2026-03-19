@@ -1,5 +1,5 @@
 import React, { useCallback, useLayoutEffect, useMemo } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenGradient } from "../components/ScreenGradient";
@@ -12,6 +12,7 @@ import { useTheme } from "../context/useTheme";
 import type { RootStackParamList } from "../types/navigation";
 import { SPACING } from "../constants/spacing";
 import type { TravelEntry } from "../types/entry";
+import { styles } from "./HomeScreen.styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -83,25 +84,3 @@ export function HomeScreen({ navigation }: Props) {
     </ScreenGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.md,
-  },
-  headerRight: {
-    flexDirection: "row",
-    gap: SPACING.sm,
-  },
-  listContent: {
-    paddingBottom: SPACING.xxl,
-  },
-  listEmpty: {
-    flexGrow: 1,
-  },
-  separator: {
-    height: SPACING.lg,
-  },
-});
-
