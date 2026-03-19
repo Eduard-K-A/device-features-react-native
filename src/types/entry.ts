@@ -6,6 +6,7 @@ export interface Coordinates {
 export interface TravelEntry {
   id: string;
   imageUri: string;
+  title: string;
   address: string;
   coords: Coordinates | null;
   createdAt: number;
