@@ -46,14 +46,18 @@ export function usePermissions() {
 
   const refreshLocation = useCallback(async (): Promise<PermissionSnapshot> => {
     const current = await Location.getForegroundPermissionsAsync();
-    const snap = toSnapshot(current.granted, current.canAskAgain, toSimpleStatus(current.status));
+    const snap = toSnapshot(
+      current.granted,
+      current.canAskAgain ?? true,
+      toSimpleStatus(current.status)
+    );
     setLocationPerm(snap);
     return snap;
   }, []);
 
   const requestLocation = useCallback(async (): Promise<PermissionSnapshot> => {
     const res = await Location.requestForegroundPermissionsAsync();
-    const snap = toSnapshot(res.granted, res.canAskAgain, toSimpleStatus(res.status));
+    const snap = toSnapshot(res.granted, res.canAskAgain ?? true, toSimpleStatus(res.status));
     setLocationPerm(snap);
     return snap;
   }, []);
