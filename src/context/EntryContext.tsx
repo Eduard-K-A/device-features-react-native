@@ -8,6 +8,7 @@ import { createId } from "../utils/id";
 
 export interface CreateEntryInput {
   imageUri: string;
+  title: string;
   address: string;
   coords: TravelEntry["coords"];
 }
@@ -22,9 +23,11 @@ export interface EntryContextValue {
 
 export const EntryContext = createContext<EntryContextValue | undefined>(undefined);
 
-function isValidEntryShape(x: unknown): x is TravelEntry {
+type PersistedEntry = Omit<TravelEntry, "title"> & Partial<Pick<TravelEntry, "title">>;
+
+function isValidEntryShape(x: unknown): x is PersistedEntry {
   if (!x || typeof x !== "object") return false;
-  const e = x as Partial<TravelEntry>;
+  const e = x as Partial<PersistedEntry>;
   return (
     typeof e.id === "string" &&
     typeof e.imageUri === "string" &&
@@ -52,7 +55,12 @@ export function EntryProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const parsed = saved.filter(isValidEntryShape);
+    const parsed = saved
+      .filter(isValidEntryShape)
+      .map((e) => ({
+        ...e,
+        title: typeof e.title === "string" ? e.title : "Untitled",
+      })) as TravelEntry[];
     setEntries(parsed);
     setIsHydrating(false);
   }, []);
@@ -72,6 +80,7 @@ export function EntryProvider({ children }: { children: React.ReactNode }) {
         const entry: TravelEntry = {
           id: createId(),
           imageUri: persistedImageUri,
+          title: input.title,
           address: input.address,
           coords: input.coords ?? null,
           createdAt: Date.now(),
