@@ -1,8 +1,16 @@
-import React, { memo, useCallback, useMemo } from "react";
-import { Alert, Image, Text, View } from "react-native";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  Image,
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import type { TravelEntry } from "../types/entry";
 import { GlassCard } from "./GlassCard";
-import { GlassButton } from "./GlassButton";
 import { useTheme } from "../context/useTheme";
 import { styles, ENTRY_CARD_HEIGHT } from "./EntryCard.styles";
 
@@ -16,44 +24,95 @@ export const EntryCard = memo(function EntryCard({
   onRemove: (id: string) => void;
 }) {
   const { theme } = useTheme();
+  const [visible, setVisible] = useState<boolean>(false);
+  const opacity = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(0.92)).current;
 
-  const confirmRemove = useCallback(() => {
-    Alert.alert("Remove entry?", "This will permanently delete the entry.", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => onRemove(entry.id) },
-    ]);
-  }, [entry.id, onRemove]);
-
-  const imageStyle = useMemo(
-    () => [styles.thumb, { borderColor: theme.glassBorder }],
-    [theme.glassBorder]
-  );
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: visible ? 1 : 0.92,
+        useNativeDriver: true,
+        friction: 9,
+      }),
+      Animated.timing(opacity, {
+        toValue: visible ? 1 : 0,
+        duration: 190,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [opacity, scale, visible]);
 
   return (
-    <GlassCard style={styles.card}>
-      <View style={styles.row}>
-        <Image source={{ uri: entry.imageUri }} style={imageStyle} />
-        <View style={styles.content}>
-          <Text numberOfLines={1} style={[styles.pictureTitle, { color: theme.textPrimary }]}>
-            {entry.title}
-          </Text>
-          <Text numberOfLines={2} style={[styles.address, { color: theme.textPrimary }]}>
-            {entry.address}
-          </Text>
-          <Text style={[styles.meta, { color: theme.textSecondary }]}>
-            {new Date(entry.createdAt).toLocaleString()}
-          </Text>
-          <View style={styles.actions}>
-            <GlassButton
-              title="Remove"
-              onPress={confirmRemove}
-              style={styles.removeBtn}
-              textStyle={{ color: theme.danger }}
-              accessibilityLabel="Remove entry"
-            />
+    <>
+      <TouchableOpacity activeOpacity={0.9}>
+        <GlassCard style={styles.card} contentStyle={styles.noPadding}>
+          <Image source={{ uri: entry.imageUri }} style={styles.photo} />
+          <View style={styles.content}>
+            <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.pictureTitle, { color: theme.textPrimary }]}>
+              {entry.title}
+            </Text>
+            <Text numberOfLines={2} style={[styles.address, { color: theme.textSecondary }]}>
+              {entry.address}
+            </Text>
+            <View style={styles.rowEnd}>
+              <Pressable
+                onPress={() => setVisible(true)}
+                style={[styles.removeBtn, { borderColor: "rgba(239,68,68,0.5)", backgroundColor: "rgba(239,68,68,0.2)" }]}
+              >
+                <Ionicons name="trash-outline" size={14} color={theme.danger} />
+                <Text style={[styles.removeText, { color: theme.danger }]}>Remove</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </View>
-    </GlassCard>
+        </GlassCard>
+      </TouchableOpacity>
+
+      <Modal visible={visible} transparent animationType="none" onRequestClose={() => setVisible(false)}>
+        <Animated.View
+          style={[
+            styles.overlay,
+            {
+              backgroundColor: theme.isDark ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.35)",
+              opacity,
+            },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: theme.glassFill,
+                borderColor: theme.glassBorder,
+                transform: [{ scale }],
+                shadowColor: theme.shadow,
+              },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.textPrimary }]}>Remove entry?</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>
+              This will permanently delete the entry.
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                onPress={() => setVisible(false)}
+                style={[styles.modalBtn, { backgroundColor: theme.buttonFill, borderColor: theme.glassBorder }]}
+              >
+                <Text style={[styles.modalBtnLabel, { color: theme.textPrimary }]}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setVisible(false);
+                  onRemove(entry.id);
+                }}
+                style={[styles.modalBtn, { backgroundColor: "rgba(239,68,68,0.25)", borderColor: "rgba(239,68,68,0.5)" }]}
+              >
+                <Text style={[styles.modalBtnLabel, { color: theme.danger }]}>Delete</Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
+    </>
   );
 });
