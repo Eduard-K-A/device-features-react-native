@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../context/useTheme";
@@ -14,42 +14,49 @@ interface HeaderProps {
 export function Header({ variant, onAddEntry, onToggleTheme, isDark = false }: HeaderProps) {
   const { theme } = useTheme();
   const navigation = useNavigation();
-  const rotate = useRef(new Animated.Value(0)).current;
-
-  const onPressToggle = () => {
-    Animated.timing(rotate, {
-      toValue: 1,
-      duration: 360,
-      useNativeDriver: true,
-    }).start(() => rotate.setValue(0));
-    onToggleTheme?.();
-  };
-
-  const spin = rotate.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.glassFill, borderBottomColor: theme.glassBorder }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          backgroundColor: theme.background,
+          borderBottomColor: theme.border,
+        },
+      ]}
+    >
       {variant === "home" ? (
         <>
-          <Text style={[styles.title, { color: theme.textPrimary }]}>✈️ Travel Diary</Text>
+          <Text style={[styles.title, { color: theme.text, letterSpacing: -0.5 }]}>TRAVEL DIARY</Text>
           <View style={styles.actions}>
             <Pressable
               onPress={onAddEntry}
-              style={[styles.pill, { borderColor: theme.glassBorder, backgroundColor: theme.buttonFill }]}
+              style={({ pressed }) => [
+                styles.addPill,
+                {
+                  backgroundColor: theme.accent,
+                  borderColor: theme.border,
+                  borderBottomWidth: pressed ? 2 : 4,
+                  borderRightWidth: pressed ? 2 : 4,
+                },
+              ]}
             >
-              <Ionicons name="add" size={16} color={theme.textPrimary} />
-              <Text style={[styles.pillLabel, { color: theme.textPrimary }]}>Add Entry</Text>
+              <Ionicons name="add" size={16} color={theme.accentText} />
+              <Text style={[styles.addPillLabel, { color: theme.accentText }]}>ADD ENTRY</Text>
             </Pressable>
             <Pressable
-              onPress={onPressToggle}
-              style={[styles.iconCircle, { borderColor: theme.glassBorder, backgroundColor: theme.buttonFill }]}
+              onPress={onToggleTheme}
+              style={({ pressed }) => [
+                styles.toggleSquare,
+                {
+                  borderColor: theme.border,
+                  backgroundColor: theme.surface,
+                  borderBottomWidth: pressed ? 2 : 4,
+                  borderRightWidth: pressed ? 2 : 4,
+                },
+              ]}
             >
-              <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name={isDark ? "sunny" : "moon"} size={18} color={theme.textPrimary} />
-              </Animated.View>
+              <Ionicons name={isDark ? "sunny" : "moon"} size={18} color={theme.text} />
             </Pressable>
           </View>
         </>
@@ -57,11 +64,19 @@ export function Header({ variant, onAddEntry, onToggleTheme, isDark = false }: H
         <>
           <Pressable
             onPress={() => navigation.goBack()}
-            style={[styles.iconCircle, { borderColor: theme.glassBorder, backgroundColor: theme.buttonFill }]}
+            style={({ pressed }) => [
+              styles.backSquare,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.surface,
+                borderBottomWidth: pressed ? 2 : 4,
+                borderRightWidth: pressed ? 2 : 4,
+              },
+            ]}
           >
-            <Ionicons name="chevron-back" size={20} color={theme.textPrimary} />
+            <Ionicons name="chevron-back" size={20} color={theme.text} />
           </Pressable>
-          <Text style={[styles.titleCenter, { color: theme.textPrimary }]}>New Travel Entry</Text>
+          <Text style={[styles.titleCenter, { color: theme.text }]}>NEW TRAVEL ENTRY</Text>
           <View style={styles.spacer} />
         </>
       )}
@@ -72,50 +87,72 @@ export function Header({ variant, onAddEntry, onToggleTheme, isDark = false }: H
 const styles = StyleSheet.create({
   root: {
     width: "100%",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    borderBottomWidth: 1,
+    borderBottomWidth: 3,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   title: {
-    fontSize: 26,
-    fontWeight: "700",
+    fontSize: 28,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: -0.5,
   },
   titleCenter: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 3,
+    flex: 1,
+    textAlign: "center",
   },
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 12,
   },
-  pill: {
+  addPill: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    borderWidth: 1,
-    borderRadius: 999,
+    borderWidth: 2,
+    borderRadius: 4,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
   },
-  pillLabel: {
+  addPillLabel: {
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 2,
   },
-  iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1,
+  toggleSquare: {
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+  },
+  backSquare: {
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
   },
   spacer: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
   },
 });
 
