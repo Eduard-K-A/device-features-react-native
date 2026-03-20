@@ -1,92 +1,108 @@
 import { StyleSheet } from "react-native";
-import { RADIUS, SPACING } from "../constants/spacing";
+import { SPACING } from "../constants/spacing";
 
-export const ENTRY_CARD_HEIGHT = 292;
+export const ENTRY_CARD_HEIGHT = 372;
 
 export const styles = StyleSheet.create({
-  card: {
+  cardOuter: {
+    width: "100%",
     height: ENTRY_CARD_HEIGHT,
+    marginBottom: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
+    borderBottomWidth: 4,
+    borderRadius: 0,
   },
-  noPadding: {
+  cardInnerNoPadding: {
     padding: 0,
+    borderRadius: 0,
   },
   photo: {
     width: "100%",
-    height: 180,
-    borderTopLeftRadius: RADIUS.lg,
-    borderTopRightRadius: RADIUS.lg,
+    height: 220,
+    borderRadius: 0,
+  },
+  divider: {
+    borderBottomWidth: 2,
   },
   content: {
-    padding: SPACING.md,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 12,
   },
-  pictureTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: SPACING.xs,
+  textBlock: {
+    paddingBottom: 10,
+  },
+  title: {
+    fontFamily: "monospace",
+    fontSize: 20,
+    fontWeight: "900",
+    letterSpacing: 1,
+    textTransform: "uppercase",
   },
   address: {
-    fontSize: 11,
-    fontWeight: "600",
-    lineHeight: 16,
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 18,
   },
-  rowEnd: {
-    marginTop: SPACING.sm,
+  actionRow: {
     alignItems: "flex-end",
   },
   removeBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.md,
-    borderRadius: 999,
-    borderWidth: 1,
+    gap: 8,
+    borderWidth: 2,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
   },
-  removeText: {
+  removeLabel: {
+    fontFamily: "monospace",
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "900",
+    letterSpacing: 2,
+    textTransform: "uppercase",
   },
-  overlay: {
+
+  backdrop: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: 16,
   },
-  modalCard: {
+  modalBox: {
     width: "100%",
-    borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    padding: SPACING.lg,
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 10,
+    borderRadius: 0,
+    borderWidth: 3,
+    borderTopWidth: 6,
+    padding: 24,
   },
   modalTitle: {
+    fontFamily: "monospace",
     fontSize: 20,
-    fontWeight: "700",
-    marginBottom: SPACING.sm,
+    fontWeight: "900",
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginBottom: 12,
   },
-  modalText: {
+  modalBody: {
+    fontFamily: "monospace",
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "700",
     lineHeight: 20,
   },
-  modalActions: {
-    marginTop: SPACING.lg,
+  modalBtnRow: {
+    marginTop: 24,
     flexDirection: "row",
-    gap: SPACING.sm,
+    gap: 12,
   },
   modalBtn: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingVertical: SPACING.sm,
-    alignItems: "center",
-  },
-  modalBtnLabel: {
-    fontSize: 14,
-    fontWeight: "700",
+    paddingVertical: 12,
   },
 });
 
