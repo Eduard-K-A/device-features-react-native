@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { GlassButton } from "./Button";
+import { Button } from "./Button";
 import { Card } from "./Card";
 import { ScreenGradient } from "./ScreenGradient";
 import { SPACING } from "../constants/spacing";
@@ -65,7 +65,7 @@ export class ErrorBoundary extends React.PureComponent<
               {this.state.message}
             </Text>
             <View style={styles.actions}>
-              <GlassButton title="Try again" onPress={this.reset} variant="secondary" />
+              <Button title="Try again" onPress={this.reset} variant="secondary" />
             </View>
             </Card>
           </View>

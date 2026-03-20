@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 import type { PermissionSnapshot } from "../hooks/usePermissions";
-import { GlassButton } from "./Button";
-import { GlassCard } from "./Card";
+import { Button } from "./Button";
+import { Card } from "./Card";
 import { useTheme } from "../context/useTheme";
 import { styles } from "./PermissionPanel.styles";
 
@@ -27,7 +27,7 @@ export function PermissionPanel({
   }, [permission.canAskAgain, permission.granted, permission.status]);
 
   return (
-    <GlassCard>
+    <Card>
       <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
       <Text style={[styles.desc, { color: theme.textSecondary }]}>{description}</Text>
       <View style={styles.row}>
@@ -35,12 +35,12 @@ export function PermissionPanel({
           Status: {statusText}
         </Text>
       </View>
-      <GlassButton
+      <Button
         title={permission.granted ? "Granted" : "Grant permission"}
         onPress={onRequest}
         disabled={permission.granted}
         variant="secondary"
       />
-    </GlassCard>
+    </Card>
   );
 }
