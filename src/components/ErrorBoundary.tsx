@@ -1,10 +1,12 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { GlassButton } from "./GlassButton";
 import { GlassCard } from "./GlassCard";
 import { ScreenGradient } from "./ScreenGradient";
 import { SPACING } from "../constants/spacing";
 import { ThemeContext } from "../context/ThemeContext";
+import { LIGHT_THEME } from "../constants/themeTokens";
 
 interface State {
   hasError: boolean;
@@ -38,17 +40,18 @@ export class ErrorBoundary extends React.PureComponent<
   };
 
   render() {
-    const theme = (this.context as React.ContextType<typeof ThemeContext>)?.theme;
+    const theme = (this.context as React.ContextType<typeof ThemeContext>)?.theme ?? LIGHT_THEME;
     if (!this.state.hasError) return this.props.children;
 
     return (
       <ScreenGradient>
-        <View style={styles.center}>
-          <GlassCard>
+        <SafeAreaView style={styles.safe} edges={["top", "left", "right"]}>
+          <View style={styles.center}>
+            <GlassCard>
             <Text
               style={[
                 styles.title,
-                { color: theme?.textPrimary ?? "black" },
+                { color: theme.textPrimary },
               ]}
             >
               Something went wrong
@@ -56,16 +59,17 @@ export class ErrorBoundary extends React.PureComponent<
             <Text
               style={[
                 styles.body,
-                { color: theme?.textSecondary ?? "black" },
+                { color: theme.textSecondary },
               ]}
             >
               {this.state.message}
             </Text>
             <View style={styles.actions}>
-              <GlassButton title="Try again" onPress={this.reset} />
+              <GlassButton title="Try again" onPress={this.reset} variant="secondary" />
             </View>
-          </GlassCard>
-        </View>
+            </GlassCard>
+          </View>
+        </SafeAreaView>
       </ScreenGradient>
     );
   }
@@ -76,6 +80,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: SPACING.xl,
     justifyContent: "center",
+  },
+  safe: {
+    flex: 1,
   },
   title: {
     fontSize: 20,
