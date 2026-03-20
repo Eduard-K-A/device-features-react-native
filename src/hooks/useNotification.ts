@@ -44,12 +44,20 @@ export async function scheduleEntrySavedNotification(entryTitle: string): Promis
     const safeTitle = entryTitle.trim().length > 0 ? entryTitle : "Untitled Entry";
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "✈️ Travel Diary",
+        title: "Travel Diary",
         body: `Successfully Added "${safeTitle}"`,
         sound: "default",
         data: { entryTitle: safeTitle },
       },
+      // Some expo-notifications typings in this project don't include `android.channelId`,
+      // but Android still supports selecting a channelId for local notifications.
+      // We use a narrow type assertion to keep the rest strictly typed.
+      android: {
+        channelId: "travel-diary",
+      },
       trigger: null,
+    } as unknown as Parameters<typeof Notifications.scheduleNotificationAsync>[0] & {
+      android?: { channelId: string };
     });
   } catch {
     // best effort
