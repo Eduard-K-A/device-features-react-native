@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Alert, Image, Text, TextInput, View } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraView } from "expo-camera";
@@ -125,7 +125,7 @@ export function AddEntryScreen({ navigation }: Props) {
       setGeocodeError("Unable to resolve address. You can enter it manually below.");
       setAddress("");
       setAddressUnavailable(true);
-      setCanRetryLocation(false);
+      setCanRetryLocation(true);
     } finally {
       setIsGeocoding(false);
     }
@@ -161,8 +161,7 @@ export function AddEntryScreen({ navigation }: Props) {
       pictureTitle.trim().length > 0 &&
       address.trim().length > 0 &&
       !isGeocoding &&
-      !isLocating &&
-      address !== "Address unavailable"
+      !isLocating
     );
   }, [address, confirmedUri, isGeocoding, isLocating, isSaving, pictureTitle]);
 
@@ -232,9 +231,17 @@ export function AddEntryScreen({ navigation }: Props) {
 
   return (
     <ScreenGradient>
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
-        <FadeInSlideUp>
-          <View style={styles.stack}>
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <SafeAreaView style={styles.safe} edges={["bottom"]}>
+          <FadeInSlideUp>
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.stack}
+              showsVerticalScrollIndicator={false}
+            >
             {!camera.granted && cameraPanel}
             {camera.granted && !location.granted && locationPanel}
 
@@ -267,116 +274,142 @@ export function AddEntryScreen({ navigation }: Props) {
               )}
 
               {stage === "preview" ? (
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
-                    Picture title
-                  </Text>
-                  <TextInput
-                    style={[styles.input, { color: theme.textPrimary, borderColor: theme.glassBorder }]}
-                    value={pictureTitle}
-                    onChangeText={(t) => setPictureTitle(t)}
-                    placeholder="e.g. Weekend in Rome"
-                    placeholderTextColor={theme.textSecondary}
-                    autoCapitalize="sentences"
-                    returnKeyType="done"
-                  />
-                </View>
-              ) : null}
-
-              {confirmedUri ? (
-                <View style={styles.addressBox}>
-                  {isGeocoding || isLocating ? (
-                    <LoadingInline label="Resolving address..." />
-                  ) : (
-                    <>
-                      {addressUnavailable ? (
-                        <>
-                          <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
-                            Address
-                          </Text>
-                          <TextInput
-                            style={[
-                              styles.input,
-                              { color: theme.textPrimary, borderColor: theme.glassBorder },
-                            ]}
-                            value={address}
-                            onChangeText={(t) => {
-                              setAddress(t);
-                              setCanRetryLocation(false);
-                            }}
-                            placeholder="Enter address manually"
-                            placeholderTextColor={theme.textSecondary}
-                            autoCapitalize="words"
-                            returnKeyType="done"
-                          />
-                          {canRetryLocation ? (
-                            <View style={styles.refreshRow}>
-                              <GlassButton
-                                title="Refresh location"
-                                onPress={onRefreshLocation}
-                                disabled={isGeocoding || isLocating}
-                              />
-                            </View>
-                          ) : null}
-                        </>
-                      ) : (
-                        <Text style={[styles.address, { color: theme.textSecondary }]}>
-                          {address.trim().length > 0 ? address : "Address unavailable"}
-                        </Text>
-                      )}
-                    </>
-                  )}
-                </View>
-              ) : null}
-
-              <View style={styles.actions}>
-                {stage === "camera" ? (
-                  <GlassButton
-                    title={isCapturing ? "Capturing..." : "Take photo"}
-                    onPress={onTakePhoto}
-                    disabled={!camera.granted || isCapturing}
-                  />
-                ) : (
-                  <View style={styles.row}>
-                    <View style={styles.flex}>
-                      <GlassButton
-                        title="Retake"
-                        onPress={() => {
-                          setStage("camera");
-                          setPhotoUri(null);
-                          setConfirmedUri(null);
-                          setPictureTitle("");
-                          setAddress("");
-                          setAddressUnavailable(false);
-                          setCanRetryLocation(false);
+                <>
+                    <View style={styles.inputGroup}>
+                      <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
+                        Picture title
+                      </Text>
+                      <TextInput
+                        style={[
+                          styles.input,
+                          { color: theme.textPrimary, borderColor: theme.glassBorder },
+                        ]}
+                        value={pictureTitle}
+                        onChangeText={(t) => {
+                          setPictureTitle(t);
                           setGeocodeError(null);
-                          setEntryCoords(null);
-                          setIsGeocoding(false);
                         }}
+                        placeholder="e.g. Weekend in Rome"
+                        placeholderTextColor={theme.textSecondary}
+                        autoCapitalize="sentences"
+                        returnKeyType="done"
                       />
                     </View>
-                    <View style={styles.flex}>
-                      <GlassButton
-                        title={confirmedUri ? "Selected" : "Use photo"}
-                        onPress={onConfirmPhoto}
-                        disabled={confirmedUri !== null || isGeocoding || isLocating}
-                      />
-                    </View>
-                  </View>
-                )}
-              </View>
 
-              <View style={styles.saveRow}>
-                <GlassButton
-                  title={isSaving ? "Saving..." : "Save entry"}
-                  onPress={save}
-                  disabled={!canSave}
-                />
-              </View>
+                    {confirmedUri ? (
+                      <View style={styles.addressBox}>
+                        {isGeocoding || isLocating ? (
+                          <LoadingInline label="Resolving address..." />
+                        ) : (
+                          <>
+                            {addressUnavailable ? (
+                              <>
+                                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
+                                  Address
+                                </Text>
+                                <TextInput
+                                  style={[
+                                    styles.input,
+                                    {
+                                      color: theme.textPrimary,
+                                      borderColor: theme.glassBorder,
+                                    },
+                                  ]}
+                                  value={address}
+                                  onChangeText={(t) => {
+                                    setAddress(t);
+                                    setCanRetryLocation(false);
+                                    setGeocodeError(null);
+                                    setAddressUnavailable(true);
+                                  }}
+                                  placeholder="Enter address manually"
+                                  placeholderTextColor={theme.textSecondary}
+                                  autoCapitalize="words"
+                                  returnKeyType="done"
+                                />
+                                {canRetryLocation ? (
+                                  <View style={styles.refreshRow}>
+                                    <GlassButton
+                                      title="Refresh location"
+                                      onPress={onRefreshLocation}
+                                      disabled={isGeocoding || isLocating}
+                                    />
+                                  </View>
+                                ) : null}
+                              </>
+                            ) : (
+                              <Text style={[styles.address, { color: theme.textSecondary }]}>
+                                {address.trim().length > 0 ? address : "Address unavailable"}
+                              </Text>
+                            )}
+                          </>
+                        )}
+                      </View>
+                    ) : null}
+
+                    <View style={styles.actions}>
+                      <View style={styles.row}>
+                        <View style={styles.flex}>
+                          <GlassButton
+                            title="Retake"
+                            onPress={() => {
+                              setStage("camera");
+                              setPhotoUri(null);
+                              setConfirmedUri(null);
+                              setPictureTitle("");
+                              setAddress("");
+                              setAddressUnavailable(false);
+                              setCanRetryLocation(false);
+                              setGeocodeError(null);
+                              setEntryCoords(null);
+                              setIsGeocoding(false);
+                            }}
+                          />
+                        </View>
+                        <View style={styles.flex}>
+                          <GlassButton
+                            title={confirmedUri ? "Selected" : "Use photo"}
+                            onPress={onConfirmPhoto}
+                            disabled={confirmedUri !== null || isGeocoding || isLocating}
+                          />
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.saveRow}>
+                      <GlassButton
+                        title={isSaving ? "Saving..." : "Save entry"}
+                        onPress={save}
+                        disabled={!canSave}
+                        style={styles.saveButton}
+                      />
+                    </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.actions}>
+                    <GlassButton
+                      title={isCapturing ? "Capturing..." : "Take photo"}
+                      onPress={onTakePhoto}
+                      disabled={!camera.granted || isCapturing}
+                    />
+                  </View>
+
+                  <View style={styles.saveRow}>
+                    <GlassButton
+                      title={isSaving ? "Saving..." : "Save entry"}
+                      onPress={save}
+                      disabled={!canSave}
+                      style={styles.saveButton}
+                    />
+                  </View>
+                </>
+              )}
             </GlassCard>
-          </View>
-        </FadeInSlideUp>
-      </SafeAreaView>
+            </ScrollView>
+          </FadeInSlideUp>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </ScreenGradient>
   );
 }

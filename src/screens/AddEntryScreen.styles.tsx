@@ -2,6 +2,9 @@ import { StyleSheet } from "react-native";
 import { RADIUS, SPACING } from "../constants/spacing";
 
 export const styles = StyleSheet.create({
+  keyboardAvoid: {
+    flex: 1,
+  },
   safe: {
     flex: 1,
     paddingHorizontal: SPACING.xl,
@@ -81,6 +84,10 @@ export const styles = StyleSheet.create({
   },
   saveRow: {
     marginTop: SPACING.lg,
+    alignItems: "stretch",
+  },
+  saveButton: {
+    width: "100%",
   },
 });
 
