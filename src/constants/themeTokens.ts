@@ -1,4 +1,5 @@
 import { COLORS, DARK_GRADIENT, GLASS, LIGHT_GRADIENT } from "./colors";
+import { DESIGN_TOKENS } from "./theme";
 
 export type ThemeName = "light" | "dark";
 
@@ -21,6 +22,21 @@ export interface ThemeTokens {
   danger: string;
   success: string;
   warning: string;
+
+  fontSize: typeof DESIGN_TOKENS.fontSize;
+  spacing: typeof DESIGN_TOKENS.spacing;
+  radius: typeof DESIGN_TOKENS.borderRadius;
+  glass: {
+    background: string;
+    border: string;
+    shadow: {
+      shadowColor: string;
+      shadowOffset: { width: number; height: number };
+      shadowOpacity: number;
+      shadowRadius: number;
+      elevation: number;
+    };
+  };
 }
 
 export const LIGHT_THEME: ThemeTokens = {
@@ -42,6 +58,14 @@ export const LIGHT_THEME: ThemeTokens = {
   danger: COLORS.danger,
   success: COLORS.success,
   warning: COLORS.warning,
+  fontSize: DESIGN_TOKENS.fontSize,
+  spacing: DESIGN_TOKENS.spacing,
+  radius: DESIGN_TOKENS.borderRadius,
+  glass: {
+    background: "rgba(255,255,255,0.55)",
+    border: "rgba(255,255,255,0.80)",
+    shadow: DESIGN_TOKENS.glass.shadow,
+  },
 };
 
 export const DARK_THEME: ThemeTokens = {
@@ -63,5 +87,13 @@ export const DARK_THEME: ThemeTokens = {
   danger: COLORS.danger,
   success: COLORS.success,
   warning: COLORS.warning,
+  fontSize: DESIGN_TOKENS.fontSize,
+  spacing: DESIGN_TOKENS.spacing,
+  radius: DESIGN_TOKENS.borderRadius,
+  glass: {
+    background: GLASS.fill,
+    border: GLASS.border,
+    shadow: DESIGN_TOKENS.glass.shadow,
+  },
 };
 
