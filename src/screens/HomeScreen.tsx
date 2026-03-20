@@ -1,16 +1,15 @@
 import React, { useCallback, useMemo } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScreenGradient } from "../components/ScreenGradient";
 import { FadeInSlideUp } from "../components/FadeInSlideUp";
-import { EntryCard, ENTRY_CARD_HEIGHT } from "../components/EntryCard";
+import { EntryCard } from "../components/EntryCard";
 import { EmptyState } from "../components/EmptyState";
 import { Header } from "../components/Header";
 import { useEntries } from "../context/useEntries";
 import { useTheme } from "../context/useTheme";
 import type { RootStackParamList } from "../types/navigation";
-import { SPACING } from "../constants/spacing";
 import type { TravelEntry } from "../types/entry";
 import { styles } from "./HomeScreen.styles";
 
@@ -18,7 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 export function HomeScreen({ navigation }: Props) {
   const { entries, removeEntry } = useEntries();
-  const { toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark, theme } = useTheme();
 
   const onRemove = useCallback(
     (id: string) => {
@@ -41,7 +40,7 @@ export function HomeScreen({ navigation }: Props) {
 
   return (
     <ScreenGradient>
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]} edges={["top", "left", "right"]}>
         <Header
           variant="home"
           onAddEntry={() => navigation.navigate("AddEntry")}
@@ -54,17 +53,12 @@ export function HomeScreen({ navigation }: Props) {
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={contentContainerStyle}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ItemSeparatorComponent={undefined}
             removeClippedSubviews
             initialNumToRender={8}
             maxToRenderPerBatch={8}
             windowSize={8}
-            getItemLayout={(_, index) => ({
-              length: ENTRY_CARD_HEIGHT + SPACING.lg,
-              offset: (ENTRY_CARD_HEIGHT + SPACING.lg) * index,
-              index,
-            })}
-            ListEmptyComponent={<EmptyState message="No Entries yet" />}
+            ListEmptyComponent={<EmptyState message="Tap '+ Add Entry' to begin" />}
           />
         </FadeInSlideUp>
       </SafeAreaView>
