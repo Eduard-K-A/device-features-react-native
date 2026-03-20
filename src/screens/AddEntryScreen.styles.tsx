@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
   },
   stack: {
     gap: SPACING.lg,
+    paddingBottom: SPACING.xl,
   },
   title: {
     fontSize: 20,
@@ -60,6 +61,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     fontSize: 14,
     fontWeight: "700",
+  },
+  inputWrap: {
+    borderWidth: 1,
+    borderRadius: RADIUS.md,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: SPACING.sm,
+  },
+  inputNoBorder: {
+    flex: 1,
+    borderWidth: 0,
   },
   addressBox: {
     marginTop: SPACING.md,

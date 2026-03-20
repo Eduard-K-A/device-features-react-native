@@ -1,5 +1,15 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraView } from "expo-camera";
@@ -9,7 +19,7 @@ import { GlassCard } from "../components/GlassCard";
 import { GlassButton } from "../components/GlassButton";
 import { FadeInSlideUp } from "../components/FadeInSlideUp";
 import { PermissionPanel } from "../components/PermissionPanel";
-import { LoadingInline } from "../components/LoadingInline";
+import { Header } from "../components/Header";
 import { useTheme } from "../context/useTheme";
 import { useEntries } from "../context/useEntries";
 import type { RootStackParamList } from "../types/navigation";
@@ -42,28 +52,28 @@ export function AddEntryScreen({ navigation }: Props) {
 
   const [stage, setStage] = useState<Stage>("camera");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [confirmedUri, setConfirmedUri] = useState<string | null>(null);
   const [pictureTitle, setPictureTitle] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [addressUnavailable, setAddressUnavailable] = useState<boolean>(false);
+  const [addressWarning, setAddressWarning] = useState<string | null>(null);
   const [canRetryLocation, setCanRetryLocation] = useState<boolean>(false);
-  const [isGeocoding, setIsGeocoding] = useState<boolean>(false);
-  const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const [isFetchingAddress, setIsFetchingAddress] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [entryCoords, setEntryCoords] = useState<Coordinates | null>(null);
+  const [addressTouched, setAddressTouched] = useState<boolean>(false);
+  const addressTouchedRef = useRef<boolean>(false);
 
   const resetAll = useCallback(() => {
     setStage("camera");
     setPhotoUri(null);
-    setConfirmedUri(null);
     setPictureTitle("");
     setAddress("");
-    setAddressUnavailable(false);
+    setAddressWarning(null);
     setCanRetryLocation(false);
-    setIsGeocoding(false);
-    setGeocodeError(null);
+    setIsFetchingAddress(false);
     setIsSaving(false);
     setEntryCoords(null);
+    setAddressTouched(false);
+    addressTouchedRef.current = false;
     resetCamera();
     resetLoc();
   }, [resetCamera, resetLoc]);
@@ -75,59 +85,47 @@ export function AddEntryScreen({ navigation }: Props) {
     }, [resetAll])
   );
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: "Add Entry",
-    });
-  }, [navigation]);
-
   useEffect(() => {
-    // Lightly prime permissions without blocking UI.
     void refreshLocation();
   }, [refreshLocation]);
 
   const resolveAddress = useCallback(async () => {
-    setGeocodeError(null);
-    setIsGeocoding(true);
-    setAddress("");
-    setAddressUnavailable(false);
+    setAddressWarning(null);
+    setIsFetchingAddress(true);
     setCanRetryLocation(false);
     setEntryCoords(null);
 
     try {
       const locPerm = await refreshLocation();
       if (!locPerm.granted) {
-        setGeocodeError("Location permission is required to resolve address.");
-        setAddressUnavailable(true);
+        setAddressWarning("Could not detect location. Please type manually.");
+        setCanRetryLocation(true);
         return;
       }
 
       const current = await getCurrentLocation();
       if (!current) {
-        setGeocodeError("Unable to fetch location. Please refresh and try again.");
-        setAddressUnavailable(true);
+        setAddressWarning("Could not detect location. Please type manually.");
         setCanRetryLocation(true);
         return;
       }
 
       setEntryCoords(current);
       const resolved = await reverseGeocodeAddress(current);
-      if (resolved.trim().length === 0 || resolved === "Address unavailable") {
-        setGeocodeError("Unable to resolve address. You can enter it manually below.");
-        setAddress("");
-        setAddressUnavailable(true);
+      if (!resolved || resolved === "Address unavailable") {
+        setAddressWarning("Could not detect location. Please type manually.");
+        setCanRetryLocation(true);
         return;
       }
 
-      setAddress(resolved);
-      setAddressUnavailable(false);
+      if (!addressTouchedRef.current) {
+        setAddress(resolved);
+      }
     } catch {
-      setGeocodeError("Unable to resolve address. You can enter it manually below.");
-      setAddress("");
-      setAddressUnavailable(true);
+      setAddressWarning("Could not detect location. Please type manually.");
       setCanRetryLocation(true);
     } finally {
-      setIsGeocoding(false);
+      setIsFetchingAddress(false);
     }
   }, [getCurrentLocation, refreshLocation, reverseGeocodeAddress]);
 
@@ -137,18 +135,14 @@ export function AddEntryScreen({ navigation }: Props) {
     if (!res?.uri) return;
     setPictureTitle("");
     setAddress("");
-    setAddressUnavailable(false);
+    setAddressWarning(null);
     setCanRetryLocation(false);
-    setGeocodeError(null);
+    setAddressTouched(false);
+    addressTouchedRef.current = false;
     setPhotoUri(res.uri);
+    void resolveAddress();
     setStage("preview");
-  }, [camera.granted, takePhoto]);
-
-  const onConfirmPhoto = useCallback(async () => {
-    if (!photoUri) return;
-    setConfirmedUri(photoUri);
-    await resolveAddress();
-  }, [photoUri, resolveAddress]);
+  }, [camera.granted, resolveAddress, takePhoto]);
 
   const onRefreshLocation = useCallback(() => {
     void resolveAddress();
@@ -157,21 +151,20 @@ export function AddEntryScreen({ navigation }: Props) {
   const canSave = useMemo(() => {
     return (
       !isSaving &&
-      confirmedUri !== null &&
+      photoUri !== null &&
       pictureTitle.trim().length > 0 &&
       address.trim().length > 0 &&
-      !isGeocoding &&
       !isLocating
     );
-  }, [address, confirmedUri, isGeocoding, isLocating, isSaving, pictureTitle]);
+  }, [address, isLocating, isSaving, photoUri, pictureTitle]);
 
   const save = useCallback(async () => {
-    if (!confirmedUri) {
+    if (!photoUri) {
       Alert.alert("Missing photo", "Please take a photo first.");
       return;
     }
-    if (isGeocoding || address.trim().length === 0) {
-      Alert.alert("Address not ready", "Please wait for the address to finish resolving.");
+    if (address.trim().length === 0) {
+      Alert.alert("Address required", "Please enter an address to continue.");
       return;
     }
     if (pictureTitle.trim().length === 0) {
@@ -182,14 +175,14 @@ export function AddEntryScreen({ navigation }: Props) {
     setIsSaving(true);
     try {
       const entry = await addEntry({
-        imageUri: confirmedUri,
+        imageUri: photoUri,
         title: pictureTitle,
         address,
         coords: entryCoords,
       });
       if (!entry) return;
 
-      await scheduleEntrySavedNotification(entry.address);
+      await scheduleEntrySavedNotification(entry.title);
 
       navigation.goBack();
     } finally {
@@ -198,10 +191,9 @@ export function AddEntryScreen({ navigation }: Props) {
   }, [
     addEntry,
     address,
-    confirmedUri,
     entryCoords,
-    isGeocoding,
     navigation,
+    photoUri,
     pictureTitle,
   ]);
 
@@ -233,7 +225,8 @@ export function AddEntryScreen({ navigation }: Props) {
     <ScreenGradient>
       <KeyboardAvoidingView
         style={styles.keyboardAvoid}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <SafeAreaView style={styles.safe} edges={["bottom"]}>
           <FadeInSlideUp>
@@ -242,6 +235,7 @@ export function AddEntryScreen({ navigation }: Props) {
               contentContainerStyle={styles.stack}
               showsVerticalScrollIndicator={false}
             >
+            <Header variant="add-entry" />
             {!camera.granted && cameraPanel}
             {camera.granted && !location.granted && locationPanel}
 
@@ -269,9 +263,7 @@ export function AddEntryScreen({ navigation }: Props) {
               {!!cameraError && (
                 <Text style={[styles.error, { color: theme.warning }]}>{cameraError}</Text>
               )}
-              {!!geocodeError && (
-                <Text style={[styles.error, { color: theme.warning }]}>{geocodeError}</Text>
-              )}
+              {!!addressWarning && <Text style={[styles.error, { color: theme.warning }]}>{addressWarning}</Text>}
 
               {stage === "preview" ? (
                 <>
@@ -287,7 +279,6 @@ export function AddEntryScreen({ navigation }: Props) {
                         value={pictureTitle}
                         onChangeText={(t) => {
                           setPictureTitle(t);
-                          setGeocodeError(null);
                         }}
                         placeholder="e.g. Weekend in Rome"
                         placeholderTextColor={theme.textSecondary}
@@ -296,54 +287,37 @@ export function AddEntryScreen({ navigation }: Props) {
                       />
                     </View>
 
-                    {confirmedUri ? (
+                    {photoUri ? (
                       <View style={styles.addressBox}>
-                        {isGeocoding || isLocating ? (
-                          <LoadingInline label="Resolving address..." />
-                        ) : (
-                          <>
-                            {addressUnavailable ? (
-                              <>
-                                <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
-                                  Address
-                                </Text>
-                                <TextInput
-                                  style={[
-                                    styles.input,
-                                    {
-                                      color: theme.textPrimary,
-                                      borderColor: theme.glassBorder,
-                                    },
-                                  ]}
-                                  value={address}
-                                  onChangeText={(t) => {
-                                    setAddress(t);
-                                    setCanRetryLocation(false);
-                                    setGeocodeError(null);
-                                    setAddressUnavailable(true);
-                                  }}
-                                  placeholder="Enter address manually"
-                                  placeholderTextColor={theme.textSecondary}
-                                  autoCapitalize="words"
-                                  returnKeyType="done"
-                                />
-                                {canRetryLocation ? (
-                                  <View style={styles.refreshRow}>
-                                    <GlassButton
-                                      title="Refresh location"
-                                      onPress={onRefreshLocation}
-                                      disabled={isGeocoding || isLocating}
-                                    />
-                                  </View>
-                                ) : null}
-                              </>
-                            ) : (
-                              <Text style={[styles.address, { color: theme.textSecondary }]}>
-                                {address.trim().length > 0 ? address : "Address unavailable"}
-                              </Text>
-                            )}
-                          </>
-                        )}
+                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Address</Text>
+                        <View style={[styles.inputWrap, { borderColor: theme.glassBorder }]}>
+                          <TextInput
+                            style={[styles.input, styles.inputNoBorder, { color: theme.textPrimary }]}
+                            value={address}
+                            onChangeText={(t) => {
+                              setAddress(t);
+                              setAddressTouched(true);
+                              addressTouchedRef.current = true;
+                              setAddressWarning(null);
+                            }}
+                            placeholder={isFetchingAddress ? "Fetching address..." : "Enter address manually"}
+                            placeholderTextColor={theme.textSecondary}
+                            autoCapitalize="words"
+                            returnKeyType="done"
+                          />
+                          {isFetchingAddress ? (
+                            <ActivityIndicator size="small" color={theme.textSecondary} />
+                          ) : null}
+                        </View>
+                        {canRetryLocation ? (
+                          <View style={styles.refreshRow}>
+                            <GlassButton
+                              title="Refresh location"
+                              onPress={onRefreshLocation}
+                              disabled={isFetchingAddress || isLocating}
+                            />
+                          </View>
+                        ) : null}
                       </View>
                     ) : null}
 
@@ -355,24 +329,18 @@ export function AddEntryScreen({ navigation }: Props) {
                             onPress={() => {
                               setStage("camera");
                               setPhotoUri(null);
-                              setConfirmedUri(null);
                               setPictureTitle("");
                               setAddress("");
-                              setAddressUnavailable(false);
+                              setAddressWarning(null);
                               setCanRetryLocation(false);
-                              setGeocodeError(null);
                               setEntryCoords(null);
-                              setIsGeocoding(false);
+                              setIsFetchingAddress(false);
+                              setAddressTouched(false);
+                              addressTouchedRef.current = false;
                             }}
                           />
                         </View>
-                        <View style={styles.flex}>
-                          <GlassButton
-                            title={confirmedUri ? "Selected" : "Use photo"}
-                            onPress={onConfirmPhoto}
-                            disabled={confirmedUri !== null || isGeocoding || isLocating}
-                          />
-                        </View>
+                        {canRetryLocation ? <View style={styles.flex} /> : null}
                       </View>
                     </View>
 
