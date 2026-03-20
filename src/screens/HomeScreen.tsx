@@ -58,7 +58,7 @@ export function HomeScreen({ navigation }: Props) {
             initialNumToRender={8}
             maxToRenderPerBatch={8}
             windowSize={8}
-            ListEmptyComponent={<EmptyState message="Tap '+ Add Entry' to begin" />}
+            ListEmptyComponent={<EmptyState message="Tap '+ Add Entry' to begin" entriesCount={entries.length} />}
           />
         </FadeInSlideUp>
       </SafeAreaView>
