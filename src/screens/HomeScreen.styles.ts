@@ -4,14 +4,11 @@ import { SPACING } from "../constants/spacing";
 export const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.md,
-  },
-  headerRight: {
-    flexDirection: "row",
-    gap: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.sm,
   },
   listContent: {
+    paddingTop: SPACING.md,
     paddingBottom: SPACING.xxl,
   },
   listEmpty: {

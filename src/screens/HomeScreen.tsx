@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { FlatList, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,7 +6,7 @@ import { ScreenGradient } from "../components/ScreenGradient";
 import { FadeInSlideUp } from "../components/FadeInSlideUp";
 import { EntryCard, ENTRY_CARD_HEIGHT } from "../components/EntryCard";
 import { EmptyState } from "../components/EmptyState";
-import { IconButton } from "../components/IconButton";
+import { Header } from "../components/Header";
 import { useEntries } from "../context/useEntries";
 import { useTheme } from "../context/useTheme";
 import type { RootStackParamList } from "../types/navigation";
@@ -19,25 +19,6 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 export function HomeScreen({ navigation }: Props) {
   const { entries, removeEntry } = useEntries();
   const { toggleTheme, isDark } = useTheme();
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={styles.headerRight}>
-          <IconButton
-            icon="add"
-            onPress={() => navigation.navigate("AddEntry")}
-            accessibilityLabel="Add entry"
-          />
-          <IconButton
-            icon={isDark ? "sunny" : "moon"}
-            onPress={toggleTheme}
-            accessibilityLabel="Toggle theme"
-          />
-        </View>
-      ),
-    });
-  }, [navigation, toggleTheme]);
 
   const onRemove = useCallback(
     (id: string) => {
@@ -61,6 +42,12 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <ScreenGradient>
       <SafeAreaView style={styles.safe} edges={["bottom"]}>
+        <Header
+          variant="home"
+          onAddEntry={() => navigation.navigate("AddEntry")}
+          onToggleTheme={toggleTheme}
+          isDark={isDark}
+        />
         <FadeInSlideUp>
           <FlatList
             data={entries}
