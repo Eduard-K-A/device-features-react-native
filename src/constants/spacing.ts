@@ -1,15 +1,9 @@
+import { DESIGN_TOKENS } from "./theme";
+
 export const SPACING = {
-  xs: 6,
-  sm: 10,
-  md: 14,
-  lg: 18,
-  xl: 24,
-  xxl: 32,
+  ...DESIGN_TOKENS.spacing,
+  xxl: DESIGN_TOKENS.spacing.xl,
 } as const;
 
-export const RADIUS = {
-  md: 14,
-  lg: 20,
-  xl: 28,
-} as const;
+export const RADIUS = DESIGN_TOKENS.borderRadius;
 
