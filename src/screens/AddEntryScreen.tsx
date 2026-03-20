@@ -5,19 +5,19 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraView } from "expo-camera";
 import { useFocusEffect } from "@react-navigation/native";
 import { ScreenGradient } from "../components/ScreenGradient";
-import { GlassCard } from "../components/GlassCard";
 import { GlassButton } from "../components/GlassButton";
-import { FadeInSlideUp } from "../components/FadeInSlideUp";
 import { PermissionPanel } from "../components/PermissionPanel";
 import { Header } from "../components/Header";
 import { useTheme } from "../context/useTheme";
@@ -60,6 +60,8 @@ export function AddEntryScreen({ navigation }: Props) {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [entryCoords, setEntryCoords] = useState<Coordinates | null>(null);
   const [addressTouched, setAddressTouched] = useState<boolean>(false);
+  const [titleFocused, setTitleFocused] = useState<boolean>(false);
+  const [addressFocused, setAddressFocused] = useState<boolean>(false);
   const addressTouchedRef = useRef<boolean>(false);
 
   const resetAll = useCallback(() => {
@@ -73,6 +75,8 @@ export function AddEntryScreen({ navigation }: Props) {
     setIsSaving(false);
     setEntryCoords(null);
     setAddressTouched(false);
+    setTitleFocused(false);
+    setAddressFocused(false);
     addressTouchedRef.current = false;
     resetCamera();
     resetLoc();
@@ -100,6 +104,7 @@ export function AddEntryScreen({ navigation }: Props) {
       if (!locPerm.granted) {
         setAddressWarning("Could not detect location. Please type manually.");
         setCanRetryLocation(true);
+        if (!addressTouchedRef.current) setAddress("");
         return;
       }
 
@@ -107,6 +112,7 @@ export function AddEntryScreen({ navigation }: Props) {
       if (!current) {
         setAddressWarning("Could not detect location. Please type manually.");
         setCanRetryLocation(true);
+        if (!addressTouchedRef.current) setAddress("");
         return;
       }
 
@@ -115,6 +121,7 @@ export function AddEntryScreen({ navigation }: Props) {
       if (!resolved || resolved === "Address unavailable") {
         setAddressWarning("Could not detect location. Please type manually.");
         setCanRetryLocation(true);
+        if (!addressTouchedRef.current) setAddress("");
         return;
       }
 
@@ -124,6 +131,7 @@ export function AddEntryScreen({ navigation }: Props) {
     } catch {
       setAddressWarning("Could not detect location. Please type manually.");
       setCanRetryLocation(true);
+      if (!addressTouchedRef.current) setAddress("");
     } finally {
       setIsFetchingAddress(false);
     }
@@ -223,161 +231,172 @@ export function AddEntryScreen({ navigation }: Props) {
 
   return (
     <ScreenGradient>
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-      >
-        <SafeAreaView style={styles.safe} edges={["bottom"]}>
-          <FadeInSlideUp>
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.stack}
-              showsVerticalScrollIndicator={false}
-            >
-            <Header variant="add-entry" />
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]} edges={["top", "left", "right"]}>
+        <KeyboardAvoidingView
+          style={styles.keyboardAvoid}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        >
+          <Header variant="add-entry" />
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             {!camera.granted && cameraPanel}
             {camera.granted && !location.granted && locationPanel}
 
-            <GlassCard>
-              <Text style={[styles.title, { color: theme.textPrimary }]}>New travel entry</Text>
-
-              {stage === "camera" ? (
-                <View style={styles.cameraWrap}>
-                  {camera.granted ? (
-                    <CameraView ref={cameraRef} style={styles.camera} facing="back" />
-                  ) : (
-                    <Text style={[styles.body, { color: theme.textSecondary }]}>
-                      Camera permission is required.
-                    </Text>
-                  )}
-                </View>
-              ) : (
-                <View style={styles.previewWrap}>
-                  {photoUri ? (
-                    <Image source={{ uri: photoUri }} style={styles.preview} />
-                  ) : null}
-                </View>
-              )}
-
-              {!!cameraError && (
-                <Text style={[styles.error, { color: theme.warning }]}>{cameraError}</Text>
-              )}
-              {!!addressWarning && <Text style={[styles.error, { color: theme.warning }]}>{addressWarning}</Text>}
-
-              {stage === "preview" ? (
-                <>
-                    <View style={styles.inputGroup}>
-                      <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
-                        Picture title
-                      </Text>
-                      <TextInput
-                        style={[
-                          styles.input,
-                          { color: theme.textPrimary, borderColor: theme.glassBorder },
-                        ]}
-                        value={pictureTitle}
-                        onChangeText={(t) => {
-                          setPictureTitle(t);
-                        }}
-                        placeholder="e.g. Weekend in Rome"
-                        placeholderTextColor={theme.textSecondary}
-                        autoCapitalize="sentences"
-                        returnKeyType="done"
-                      />
+            {camera.granted ? (
+              stage === "camera" ? (
+                <View style={styles.formBlock}>
+                  <View
+                    style={[styles.photoFrame, { borderColor: theme.border }]}
+                  >
+                    <View style={styles.photoCameraWrap}>
+                      <CameraView ref={cameraRef} style={styles.photoCamera} facing="back" />
                     </View>
-
-                    {photoUri ? (
-                      <View style={styles.addressBox}>
-                        <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Address</Text>
-                        <View style={[styles.inputWrap, { borderColor: theme.glassBorder }]}>
-                          <TextInput
-                            style={[styles.input, styles.inputNoBorder, { color: theme.textPrimary }]}
-                            value={address}
-                            onChangeText={(t) => {
-                              setAddress(t);
-                              setAddressTouched(true);
-                              addressTouchedRef.current = true;
-                              setAddressWarning(null);
-                            }}
-                            placeholder={isFetchingAddress ? "Fetching address..." : "Enter address manually"}
-                            placeholderTextColor={theme.textSecondary}
-                            autoCapitalize="words"
-                            returnKeyType="done"
-                          />
-                          {isFetchingAddress ? (
-                            <ActivityIndicator size="small" color={theme.textSecondary} />
-                          ) : null}
-                        </View>
-                        {canRetryLocation ? (
-                          <View style={styles.refreshRow}>
-                            <GlassButton
-                              title="Refresh location"
-                              onPress={onRefreshLocation}
-                              disabled={isFetchingAddress || isLocating}
-                            />
-                          </View>
-                        ) : null}
-                      </View>
-                    ) : null}
-
-                    <View style={styles.actions}>
-                      <View style={styles.row}>
-                        <View style={styles.flex}>
-                          <GlassButton
-                            title="Retake"
-                            onPress={() => {
-                              setStage("camera");
-                              setPhotoUri(null);
-                              setPictureTitle("");
-                              setAddress("");
-                              setAddressWarning(null);
-                              setCanRetryLocation(false);
-                              setEntryCoords(null);
-                              setIsFetchingAddress(false);
-                              setAddressTouched(false);
-                              addressTouchedRef.current = false;
-                            }}
-                          />
-                        </View>
-                        {canRetryLocation ? <View style={styles.flex} /> : null}
-                      </View>
-                    </View>
-
-                    <View style={styles.saveRow}>
-                      <GlassButton
-                        title={isSaving ? "Saving..." : "Save entry"}
-                        onPress={save}
-                        disabled={!canSave}
-                        style={styles.saveButton}
-                      />
-                    </View>
-                </>
-              ) : (
-                <>
-                  <View style={styles.actions}>
-                    <GlassButton
-                      title={isCapturing ? "Capturing..." : "Take photo"}
-                      onPress={onTakePhoto}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Take photo"
                       disabled={!camera.granted || isCapturing}
+                      onPress={onTakePhoto}
+                      style={({ pressed }) => [
+                        styles.photoOverlay,
+                        { opacity: pressed ? 0.85 : 1 },
+                      ]}
+                    >
+                      <Ionicons name="camera" size={28} color={theme.text} />
+                      <Text style={[styles.photoOverlayText, { color: theme.text }]}>
+                        TAP TO TAKE PHOTO
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : (
+                <View style={styles.formBlock}>
+                  {photoUri ? (
+                    <Image
+                      source={{ uri: photoUri }}
+                      style={[styles.photoPreview, { borderColor: theme.border }]}
+                      resizeMode="cover"
+                    />
+                  ) : null}
+
+                  {!!cameraError && (
+                    <Text style={[styles.inlineError, { color: theme.danger }]}>{cameraError}</Text>
+                  )}
+
+                  <View style={styles.section}>
+                    <Text style={[styles.sectionLabel, { color: theme.textMuted }]}>PICTURE TITLE</Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        {
+                          backgroundColor: theme.surface,
+                            borderColor: titleFocused ? theme.accent : theme.border,
+                          color: theme.text,
+                        },
+                      ]}
+                      value={pictureTitle}
+                      onChangeText={setPictureTitle}
+                        onFocus={() => setTitleFocused(true)}
+                        onBlur={() => setTitleFocused(false)}
+                      placeholder="e.g. Weekend in Rome"
+                      placeholderTextColor={theme.textMuted}
+                      autoCapitalize="sentences"
+                      returnKeyType="done"
                     />
                   </View>
 
-                  <View style={styles.saveRow}>
+                  <View style={styles.section}>
+                    <Text style={[styles.sectionLabel, { color: theme.textMuted }]}>ADDRESS</Text>
+                    <View
+                      style={[
+                        styles.addressInputWrap,
+                        {
+                          backgroundColor: theme.surface,
+                          borderColor: addressFocused ? theme.accent : theme.border,
+                        },
+                      ]}
+                    >
+                      <TextInput
+                        style={[styles.addressInput, { color: theme.text }]}
+                        value={address}
+                        onChangeText={(t) => {
+                          setAddress(t);
+                          setAddressTouched(true);
+                          addressTouchedRef.current = true;
+                          setAddressWarning(null);
+                        }}
+                        onFocus={() => setAddressFocused(true)}
+                        onBlur={() => setAddressFocused(false)}
+                        placeholder={isFetchingAddress ? "Fetching address..." : "Enter address manually"}
+                        placeholderTextColor={theme.textMuted}
+                        autoCapitalize="words"
+                        returnKeyType="done"
+                      />
+                      <View style={styles.rightSlot}>
+                        {isFetchingAddress ? (
+                          <ActivityIndicator size="small" color={theme.textMuted} />
+                        ) : address.trim().length > 0 && !addressWarning ? (
+                          <Ionicons name="checkmark" size={18} color={theme.accent} />
+                        ) : null}
+                      </View>
+                    </View>
+
+                    {!!addressWarning ? (
+                      <Text style={[styles.warningLabel, { color: theme.accentAlt }]}>{addressWarning}</Text>
+                    ) : null}
+
+                    {canRetryLocation ? (
+                      <View style={styles.refreshRow}>
+                        <GlassButton
+                          title="Refresh location"
+                          onPress={onRefreshLocation}
+                          disabled={isFetchingAddress || isLocating}
+                          variant="secondary"
+                        />
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View style={styles.buttonStack}>
+                    <GlassButton
+                      title="Retake"
+                      onPress={() => {
+                        setStage("camera");
+                        setPhotoUri(null);
+                        setPictureTitle("");
+                        setAddress("");
+                        setAddressWarning(null);
+                        setCanRetryLocation(false);
+                        setEntryCoords(null);
+                        setIsFetchingAddress(false);
+                        setAddressTouched(false);
+                        addressTouchedRef.current = false;
+                        setTitleFocused(false);
+                        setAddressFocused(false);
+                        resetCamera();
+                        resetLoc();
+                      }}
+                      variant="secondary"
+                      style={styles.fullWidthButton}
+                    />
+
                     <GlassButton
                       title={isSaving ? "Saving..." : "Save entry"}
                       onPress={save}
                       disabled={!canSave}
-                      style={styles.saveButton}
+                      variant="primary"
+                      style={styles.fullWidthButton}
                     />
                   </View>
-                </>
-              )}
-            </GlassCard>
-            </ScrollView>
-          </FadeInSlideUp>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+                </View>
+              )
+            ) : null}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </ScreenGradient>
   );
 }

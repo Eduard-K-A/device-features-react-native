@@ -1,104 +1,132 @@
 import { StyleSheet } from "react-native";
-import { RADIUS, SPACING } from "../constants/spacing";
+import { SPACING } from "../constants/spacing";
 
 export const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+  },
   keyboardAvoid: {
     flex: 1,
   },
-  safe: {
-    flex: 1,
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.md,
-  },
-  stack: {
-    gap: SPACING.lg,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
     paddingBottom: SPACING.xl,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "900",
-    marginBottom: SPACING.md,
-  },
-  body: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  cameraWrap: {
-    height: 320,
-    borderRadius: RADIUS.lg,
-    overflow: "hidden",
-    marginBottom: SPACING.md,
-  },
-  camera: {
-    flex: 1,
-  },
-  previewWrap: {
-    height: 320,
-    borderRadius: RADIUS.lg,
-    overflow: "hidden",
-    marginBottom: SPACING.md,
-  },
-  preview: {
-    flex: 1,
-  },
-  error: {
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: SPACING.xs,
-  },
-  inputGroup: {
-    marginTop: SPACING.md,
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: "800",
-    marginBottom: SPACING.xs,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: RADIUS.md,
-    paddingVertical: 10,
-    paddingHorizontal: SPACING.md,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  inputWrap: {
-    borderWidth: 1,
-    borderRadius: RADIUS.md,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingRight: SPACING.sm,
-  },
-  inputNoBorder: {
-    flex: 1,
-    borderWidth: 0,
-  },
-  addressBox: {
-    marginTop: SPACING.md,
-  },
-  address: {
-    fontSize: 13,
-    fontWeight: "700",
-    lineHeight: 18,
-  },
-  actions: {
-    marginTop: SPACING.lg,
-  },
-  row: {
-    flexDirection: "row",
+  formBlock: {
+    width: "100%",
     gap: SPACING.md,
   },
-  flex: {
-    flex: 1,
+
+  photoFrame: {
+    width: "100%",
+    height: 220,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderRadius: 0,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  refreshRow: {
+  photoCameraWrap: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  photoCamera: {
+    width: "100%",
+    height: "100%",
+  },
+  photoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  photoOverlayText: {
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    textAlign: "center",
+  },
+  photoPreview: {
+    width: "100%",
+    height: 220,
+    borderWidth: 2,
+    borderRadius: 0,
+  },
+
+  inlineError: {
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "900",
+    letterSpacing: 1,
+    marginTop: 10,
+  },
+
+  section: {
     marginTop: SPACING.md,
   },
-  saveRow: {
-    marginTop: SPACING.lg,
-    alignItems: "stretch",
+  sectionLabel: {
+    fontFamily: "monospace",
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginBottom: 8,
   },
-  saveButton: {
+
+  input: {
+    width: "100%",
+    borderWidth: 2,
+    borderRadius: 0,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+  addressInputWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 0,
+    paddingLeft: 12,
+    paddingRight: 8,
+  },
+  addressInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "700",
+    borderWidth: 0,
+    backgroundColor: "transparent",
+  },
+  rightSlot: {
+    width: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: 2,
+  },
+
+  warningLabel: {
+    marginTop: 10,
+    fontFamily: "monospace",
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  refreshRow: {
+    marginTop: 12,
+  },
+
+  buttonStack: {
+    marginTop: 18,
+    gap: 12,
+  },
+  fullWidthButton: {
     width: "100%",
   },
 });
