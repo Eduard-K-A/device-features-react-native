@@ -5,6 +5,7 @@ import { EntryProvider } from "./src/context/EntryContext";
 import { RootNavigator } from "./src/components/RootNavigator";
 import { ErrorBoundary } from "./src/components/ErrorBoundary";
 import { useTheme } from "./src/context/useTheme";
+import { initializeNotifications } from "./src/hooks/useNotification";
 
 function ThemedStatusBar() {
   const { isDark } = useTheme();
@@ -12,6 +13,10 @@ function ThemedStatusBar() {
 }
 
 export default function App() {
+  React.useEffect(() => {
+    void initializeNotifications();
+  }, []);
+
   return (
     <ThemeProvider>
       <EntryProvider>
