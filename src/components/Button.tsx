@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, type StyleProp, type TextStyle, type ViewS
 import { useTheme } from "../context/useTheme";
 import { SPACING } from "../constants/spacing";
 
-export function GlassButton({
+export function Button({
   title,
   onPress,
   disabled,
