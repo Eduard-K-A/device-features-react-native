@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TravelEntry } from "../types/entry";
-import { GlassButton } from "./Button";
+import { Button } from "./Button";
 import { Card } from "./Card";
 import { useTheme } from "../context/useTheme";
 import { ENTRY_CARD_HEIGHT, styles } from "./EntryCard.styles";
@@ -106,8 +106,8 @@ export const EntryCard = memo(function EntryCard({
             </Text>
 
             <View style={styles.modalBtnRow}>
-              <GlassButton title="CANCEL" onPress={close} variant="secondary" style={styles.modalBtn} />
-              <GlassButton
+              <Button title="CANCEL" onPress={close} variant="secondary" style={styles.modalBtn} />
+              <Button
                 title="DELETE"
                 onPress={() => {
                   close();
