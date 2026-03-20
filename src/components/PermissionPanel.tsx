@@ -39,6 +39,7 @@ export function PermissionPanel({
         title={permission.granted ? "Granted" : "Grant permission"}
         onPress={onRequest}
         disabled={permission.granted}
+        variant="secondary"
       />
     </GlassCard>
   );
