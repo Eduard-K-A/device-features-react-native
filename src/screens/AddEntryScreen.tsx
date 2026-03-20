@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraView } from "expo-camera";
 import { useFocusEffect } from "@react-navigation/native";
 import { ScreenGradient } from "../components/ScreenGradient";
-import { GlassButton } from "../components/GlassButton";
+import { GlassButton } from "../components/Button";
 import { PermissionPanel } from "../components/PermissionPanel";
 import { Header } from "../components/Header";
 import { useTheme } from "../context/useTheme";

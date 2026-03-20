@@ -2,8 +2,8 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Image, Modal, Pressable, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { TravelEntry } from "../types/entry";
-import { GlassButton } from "./GlassButton";
-import { GlassCard } from "./GlassCard";
+import { GlassButton } from "./Button";
+import { Card } from "./Card";
 import { useTheme } from "../context/useTheme";
 import { ENTRY_CARD_HEIGHT, styles } from "./EntryCard.styles";
 
@@ -47,7 +47,7 @@ export const EntryCard = memo(function EntryCard({
 
   return (
     <>
-      <GlassCard style={styles.cardOuter} contentStyle={styles.cardInnerNoPadding}>
+      <Card style={styles.cardOuter} contentStyle={styles.cardInnerNoPadding}>
         <Image source={{ uri: entry.imageUri }} style={styles.photo} resizeMode="cover" />
         <View style={[styles.divider, { borderColor: theme.border }]} />
 
@@ -85,7 +85,7 @@ export const EntryCard = memo(function EntryCard({
             </Pressable>
           </View>
         </View>
-      </GlassCard>
+      </Card>
 
       <Modal transparent visible={confirmVisible} animationType="none" onRequestClose={close}>
         <Pressable style={[styles.backdrop, { backgroundColor: backdropColor }]} onPress={close}>

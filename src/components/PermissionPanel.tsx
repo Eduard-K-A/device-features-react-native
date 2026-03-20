@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 import type { PermissionSnapshot } from "../hooks/usePermissions";
-import { GlassButton } from "./GlassButton";
-import { GlassCard } from "./GlassCard";
+import { GlassButton } from "./Button";
+import { GlassCard } from "./Card";
 import { useTheme } from "../context/useTheme";
 import { styles } from "./PermissionPanel.styles";
 
