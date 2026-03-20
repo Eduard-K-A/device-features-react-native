@@ -7,9 +7,11 @@ import { RADIUS, SPACING } from "../constants/spacing";
 export function GlassCard({
   children,
   style,
+  contentStyle,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
 }) {
   const { theme } = useTheme();
 
@@ -31,8 +33,9 @@ export function GlassCard({
       {
         backgroundColor: theme.glassFill,
       },
+      contentStyle,
     ],
-    [theme.glassFill]
+    [contentStyle, theme.glassFill]
   );
 
   const blurIntensity = theme.isDark ? 32 : 26;
