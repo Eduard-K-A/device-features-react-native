@@ -1,4 +1,4 @@
-import { COLORS, DARK_GRADIENT, GLASS, LIGHT_GRADIENT } from "./colors";
+import { COLORS, DARK_GRADIENT, LIGHT_GRADIENT } from "./colors";
 import { DESIGN_TOKENS } from "./theme";
 
 export type ThemeName = "light" | "dark";
@@ -8,6 +8,19 @@ export interface ThemeTokens {
   isDark: boolean;
   gradient: readonly [string, string, ...string[]];
 
+  // Digital Brutalism palette
+  background: string;
+  surface: string;
+  border: string;
+  accent: string;
+  accentAlt: string;
+  accentText: string;
+  dangerText: string;
+  text: string;
+  textMuted: string;
+  fontFamily: string;
+
+  // Backwards-compatible aliases (existing components may still read these).
   textPrimary: string;
   textSecondary: string;
   icon: string;
@@ -26,74 +39,88 @@ export interface ThemeTokens {
   fontSize: typeof DESIGN_TOKENS.fontSize;
   spacing: typeof DESIGN_TOKENS.spacing;
   radius: typeof DESIGN_TOKENS.borderRadius;
-  glass: {
-    background: string;
-    border: string;
-    shadow: {
-      shadowColor: string;
-      shadowOffset: { width: number; height: number };
-      shadowOpacity: number;
-      shadowRadius: number;
-      elevation: number;
-    };
+
+  modalBackdrop: {
+    dark: string;
+    light: string;
   };
 }
 
 export const LIGHT_THEME: ThemeTokens = {
   name: "light",
   isDark: false,
-  gradient: LIGHT_GRADIENT,
+  gradient: [LIGHT_GRADIENT[0], LIGHT_GRADIENT[0]] as const,
 
-  textPrimary: COLORS.navy,
-  textSecondary: "rgba(11,27,58,0.75)",
-  icon: "rgba(11,27,58,0.85)",
+  background: "#F5F5F0",
+  surface: "#FFFFFF",
+  border: "#000000",
+  accent: "#FFE500",
+  accentAlt: "#FF3B30",
+  accentText: "#000000",
+  dangerText: "#FFFFFF",
+  text: "#000000",
+  textMuted: "#555555",
+  fontFamily: "monospace",
 
-  glassFill: "rgba(255,255,255,0.55)",
-  glassBorder: "rgba(255,255,255,0.80)",
-  shadow: "rgba(0,0,0,0.10)",
+  textPrimary: "#000000",
+  textSecondary: "#555555",
+  icon: "#000000",
 
-  buttonFill: "rgba(255,255,255,0.45)",
-  buttonFillPressed: "rgba(255,255,255,0.35)",
+  glassFill: "#FFFFFF",
+  glassBorder: "#000000",
+  shadow: "transparent",
 
-  danger: COLORS.danger,
+  buttonFill: "#FFFFFF",
+  buttonFillPressed: "#FFFFFF",
+
+  danger: "#FF3B30",
   success: COLORS.success,
   warning: COLORS.warning,
   fontSize: DESIGN_TOKENS.fontSize,
   spacing: DESIGN_TOKENS.spacing,
   radius: DESIGN_TOKENS.borderRadius,
-  glass: {
-    background: "rgba(255,255,255,0.55)",
-    border: "rgba(255,255,255,0.80)",
-    shadow: DESIGN_TOKENS.glass.shadow,
+  modalBackdrop: {
+    dark: "rgba(0,0,0,0.85)",
+    light: "rgba(0,0,0,0.5)",
   },
 };
 
 export const DARK_THEME: ThemeTokens = {
   name: "dark",
   isDark: true,
-  gradient: DARK_GRADIENT,
+  gradient: [DARK_GRADIENT[0], DARK_GRADIENT[0]] as const,
 
-  textPrimary: COLORS.nearWhite,
-  textSecondary: "rgba(255,255,255,0.72)",
-  icon: "rgba(255,255,255,0.85)",
+  background: "#0A0A0A",
+  surface: "#111111",
+  border: "#FFFFFF",
+  accent: "#FFE500",
+  accentAlt: "#FF3B30",
+  accentText: "#000000",
+  dangerText: "#FFFFFF",
+  text: "#FFFFFF",
+  textMuted: "#888888",
+  fontFamily: "monospace",
 
-  glassFill: GLASS.fill,
-  glassBorder: GLASS.border,
-  shadow: GLASS.shadow,
+  textPrimary: "#FFFFFF",
+  textSecondary: "#888888",
+  icon: "#FFFFFF",
 
-  buttonFill: "rgba(255,255,255,0.14)",
-  buttonFillPressed: "rgba(255,255,255,0.10)",
+  glassFill: "#111111",
+  glassBorder: "#FFFFFF",
+  shadow: "transparent",
 
-  danger: COLORS.danger,
+  buttonFill: "#111111",
+  buttonFillPressed: "#111111",
+
+  danger: "#FF3B30",
   success: COLORS.success,
   warning: COLORS.warning,
   fontSize: DESIGN_TOKENS.fontSize,
   spacing: DESIGN_TOKENS.spacing,
   radius: DESIGN_TOKENS.borderRadius,
-  glass: {
-    background: GLASS.fill,
-    border: GLASS.border,
-    shadow: DESIGN_TOKENS.glass.shadow,
+  modalBackdrop: {
+    dark: "rgba(0,0,0,0.85)",
+    light: "rgba(0,0,0,0.5)",
   },
 };
 
