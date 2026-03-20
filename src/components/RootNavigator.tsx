@@ -13,8 +13,7 @@ export function RootNavigator() {
 
   const screenOptions = useMemo(
     () => ({
-      headerTransparent: true,
-      headerShadowVisible: false,
+      headerShown: false,
       headerTintColor: theme.textPrimary,
       headerTitleStyle: {
         color: theme.textPrimary,
@@ -30,7 +29,7 @@ export function RootNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Travel Diary" }} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="AddEntry" component={AddEntryScreen} />
       </Stack.Navigator>
     </NavigationContainer>
