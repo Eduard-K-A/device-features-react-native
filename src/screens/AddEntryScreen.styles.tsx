@@ -129,5 +129,43 @@ export const styles = StyleSheet.create({
   fullWidthButton: {
     width: "100%",
   },
+  permissionBackdrop: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    backgroundColor: "transparent",
+  },
+  permissionBox: {
+    width: "100%",
+    borderRadius: 0,
+    borderWidth: 3,
+    borderBottomWidth: 3,
+    borderTopWidth: 6,
+    padding: 24,
+  },
+  permissionTitle: {
+    fontFamily: "monospace",
+    fontSize: 20,
+    fontWeight: "900",
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    marginBottom: 10,
+    textAlign: "left",
+  },
+  permissionBody: {
+    fontFamily: "monospace",
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  permissionBtnRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  permissionBtn: {
+    flex: 1,
+  },
 });
 
